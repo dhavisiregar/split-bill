@@ -2,7 +2,6 @@ import { create } from "zustand";
 
 const INITIAL_STATE = {
   step: 0,
-  billId: null,
   title: "",
   tax: 0,
   serviceCharge: 0,
@@ -22,7 +21,6 @@ export const useBillStore = create((set) => ({
 
   setBillMeta: (title, tax, serviceCharge) =>
     set({ title, tax, serviceCharge }),
-  setBillId: (billId) => set({ billId }),
 
   setImage: (file, preview) => set({ imageFile: file, imagePreview: preview }),
   clearImage: () => set({ imageFile: null, imagePreview: null }),
@@ -39,9 +37,7 @@ export const useBillStore = create((set) => ({
       });
       return { items, splits };
     }),
-  clearItems: () => set({ items: [], splits: {} }),
 
-  // Called after AI scan — sets title, tax, serviceCharge, and replaces items
   applyScannedReceipt: ({ title, tax, serviceCharge, items }) =>
     set({ title, tax, serviceCharge, items, splits: {} }),
 

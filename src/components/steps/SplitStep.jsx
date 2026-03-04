@@ -5,7 +5,7 @@ import {
   GhostButton,
   SectionLabel,
 } from "../ui";
-import { formatIDR, avatarColor } from "../../utils/calculation";
+import { formatIDR, avatarBg } from "../../utils/calculation";
 
 function SplitItemCard({
   item,
@@ -62,7 +62,7 @@ function SplitItemCard({
               >
                 <span
                   className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold
-                    ${selected ? "bg-black text-lime" : avatarColor(pIdx)}`}
+                    ${selected ? "bg-black text-lime" : avatarBg(pIdx)}`}
                 >
                   {name[0].toUpperCase()}
                 </span>

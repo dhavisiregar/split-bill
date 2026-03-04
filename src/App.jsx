@@ -18,11 +18,9 @@ export default function App() {
     title,
     tax,
     serviceCharge,
-    imageFile,
     items,
     participants,
     splits,
-    setBillId,
     setSummary,
   } = useBillStore();
 
@@ -33,7 +31,7 @@ export default function App() {
     setStep(step - 1);
   }
 
-  async function handleCalculate() {
+  function handleCalculate() {
     const { totals, grandTotal } = calculate(
       items,
       participants,
@@ -47,21 +45,16 @@ export default function App() {
       grandTotal,
       tax,
       serviceCharge,
+      items,
+      participants,
+      splits,
     );
     setSummary(totals, link);
-    try {
-      const bill = await createBill(title);
-      setBillId(bill.ID || bill.id);
-      if (imageFile) await uploadBillImage(imageFile);
-    } catch {
-      /* backend unavailable, local calc shown */
-    }
     setStep(3);
   }
 
   return (
     <div style={{ position: "relative", minHeight: "100vh" }}>
-      {/* Ambient blobs */}
       <div
         style={{
           position: "fixed",
@@ -100,7 +93,6 @@ export default function App() {
           padding: "0 20px 80px",
         }}
       >
-        {/* Header */}
         <header
           style={{
             display: "flex",

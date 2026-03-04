@@ -1,6 +1,5 @@
 /**
  * Calculate per-person amounts from split assignments.
- * Mirrors the backend CalculationService logic.
  *
  * @param {import('../types').Item[]} items
  * @param {string[]} participants
@@ -33,12 +32,16 @@ export function calculate(items, participants, splits, taxPct, servicePct) {
 }
 
 /**
- * Build a WhatsApp share message
+ * Build a detailed WhatsApp share message showing each person's items.
+ *
  * @param {string} title
- * @param {Record<string, number>} totals
+ * @param {Record<string, number>} totals        - final per-person amounts (post tax/service)
  * @param {number} grandTotal
  * @param {number} taxPct
  * @param {number} servicePct
+ * @param {import('../types').Item[]} items
+ * @param {string[]} participants
+ * @param {Record<number, number[]>} splits
  */
 export function buildWhatsAppLink(
   title,
@@ -46,32 +49,74 @@ export function buildWhatsAppLink(
   grandTotal,
   taxPct,
   servicePct,
+  items = [],
+  participants = [],
+  splits = {},
 ) {
-  let msg = `💸 *Split Bill: ${title}*\n\n`;
-  Object.entries(totals).forEach(([name, amount]) => {
-    msg += `• ${name}: Rp ${formatIDR(Math.round(amount))}\n`;
+  const multiplier = 1 + taxPct / 100 + servicePct / 100;
+  let msg = `🧾 *${title || "Split Bill"}*\n`;
+  msg += `━━━━━━━━━━━━━━━━━━\n\n`;
+
+  participants.forEach((name) => {
+    const personItems = [];
+
+    items.forEach((item, iIdx) => {
+      const assigned = splits[iIdx] || [];
+      const pIdx = participants.indexOf(name);
+      if (!assigned.includes(pIdx)) return;
+
+      const share = (item.price * item.qty) / assigned.length;
+      const sharedNote = assigned.length > 1 ? ` ÷${assigned.length}` : "";
+      personItems.push(
+        `  • ${item.name}${sharedNote}: Rp ${formatIDR(Math.round(share))}`,
+      );
+    });
+
+    const total = totals[name] || 0;
+    msg += `👤 *${name}*\n`;
+    personItems.forEach((line) => {
+      msg += `${line}\n`;
+    });
+
+    if (taxPct > 0 || servicePct > 0) {
+      const subtotalPerson = total / multiplier;
+      msg += `  + Tax & Service: Rp ${formatIDR(Math.round(total - subtotalPerson))}\n`;
+    }
+
+    msg += `  ➜ *Total: Rp ${formatIDR(Math.round(total))}*\n\n`;
   });
-  msg += `\n_Total: Rp ${formatIDR(Math.round(grandTotal))}_`;
-  if (taxPct > 0) msg += ` (incl. ${taxPct}% tax)`;
-  if (servicePct > 0) msg += ` + ${servicePct}% service`;
-  msg += `\n\n_Generated with SplitIt_ 🧾`;
+
+  msg += `━━━━━━━━━━━━━━━━━━\n`;
+  msg += `💰 *Grand Total: Rp ${formatIDR(Math.round(grandTotal))}*\n`;
+
+  const extras = [];
+  if (taxPct > 0) extras.push(`Tax ${taxPct}%`);
+  if (servicePct > 0) extras.push(`Service ${servicePct}%`);
+  if (extras.length > 0) msg += `_(incl. ${extras.join(" + ")})_\n`;
+
+  msg += `\n_Shared via SplitIt 🧾_`;
+
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
-/** Format a number as Indonesian Rupiah style (no symbol) */
+/** Format number as Indonesian Rupiah (no symbol) */
 export function formatIDR(n) {
   return Math.round(n).toLocaleString("id-ID");
 }
 
-/** Get avatar color class by index */
-const AVATAR_COLORS = [
-  "bg-lime text-black",
-  "bg-coral text-white",
-  "bg-sky text-black",
-  "bg-amber text-black",
-  "bg-purple-400 text-black",
-  "bg-orange-400 text-black",
+/** Avatar colors by index */
+const AVATAR_BG = [
+  "#c8f04e",
+  "#f04e7a",
+  "#4ec8f0",
+  "#f0c14e",
+  "#c084fc",
+  "#fb923c",
 ];
-export function avatarColor(idx) {
-  return AVATAR_COLORS[idx % AVATAR_COLORS.length];
+const AVATAR_FG = ["#000", "#fff", "#000", "#000", "#000", "#000"];
+export function avatarBg(idx) {
+  return {
+    bg: AVATAR_BG[idx % AVATAR_BG.length],
+    fg: AVATAR_FG[idx % AVATAR_FG.length],
+  };
 }

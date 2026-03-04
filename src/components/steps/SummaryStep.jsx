@@ -4,15 +4,8 @@ import { formatIDR } from "../../utils/calculation";
 import { RotateCcw, MessageCircle } from "lucide-react";
 
 export function SummaryStep({ onBack, onReset }) {
-  const {
-    title,
-    summary,
-    whatsappLink,
-    billId,
-    participants,
-    tax,
-    serviceCharge,
-  } = useBillStore();
+  const { title, summary, whatsappLink, participants, tax, serviceCharge } =
+    useBillStore();
   const grandTotal = summary
     ? Object.values(summary).reduce((a, b) => a + b, 0)
     : 0;
@@ -36,23 +29,20 @@ export function SummaryStep({ onBack, onReset }) {
         >
           {title || "Untitled Bill"}
         </h2>
-        <p
-          style={{
-            fontSize: 11,
-            color: "var(--color-muted)",
-            fontFamily: "DM Mono, monospace",
-            margin: 0,
-          }}
-        >
-          {billId ? `Bill ID: ${billId}` : "Local calculation"}
-          {(tax > 0 || serviceCharge > 0) && (
-            <span style={{ marginLeft: 12, color: "rgba(200,240,78,0.7)" }}>
-              {tax > 0 && `Tax ${tax}%`}
-              {tax > 0 && serviceCharge > 0 && " + "}
-              {serviceCharge > 0 && `Service ${serviceCharge}%`}
-            </span>
-          )}
-        </p>
+        {(tax > 0 || serviceCharge > 0) && (
+          <p
+            style={{
+              fontSize: 11,
+              color: "rgba(200,240,78,0.7)",
+              fontFamily: "DM Mono, monospace",
+              margin: 0,
+            }}
+          >
+            {tax > 0 && `Tax ${tax}%`}
+            {tax > 0 && serviceCharge > 0 && " + "}
+            {serviceCharge > 0 && `Service ${serviceCharge}%`}
+          </p>
+        )}
       </div>
 
       {/* Totals */}
@@ -149,30 +139,27 @@ export function SummaryStep({ onBack, onReset }) {
                     </p>
                   </div>
                 </div>
-                <div>
-                  <p
+                <p
+                  style={{
+                    fontFamily: "Syne, sans-serif",
+                    fontWeight: 800,
+                    fontSize: 22,
+                    color: "var(--color-lime)",
+                    margin: 0,
+                  }}
+                >
+                  <span
                     style={{
-                      fontFamily: "Syne, sans-serif",
-                      fontWeight: 800,
-                      fontSize: 22,
-                      color: "var(--color-lime)",
-                      margin: 0,
-                      textAlign: "right",
+                      fontSize: 12,
+                      fontFamily: "DM Mono, monospace",
+                      color: "var(--color-muted)",
+                      marginRight: 3,
                     }}
                   >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontFamily: "DM Mono, monospace",
-                        color: "var(--color-muted)",
-                        marginRight: 3,
-                      }}
-                    >
-                      Rp
-                    </span>
-                    {formatIDR(Math.round(amount))}
-                  </p>
-                </div>
+                    Rp
+                  </span>
+                  {formatIDR(Math.round(amount))}
+                </p>
               </div>
             );
           })}
@@ -198,14 +185,6 @@ export function SummaryStep({ onBack, onReset }) {
           borderRadius: 12,
           textDecoration: "none",
           transition: "all 0.2s",
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.background = "#20bd5a";
-          e.target.style.transform = "translateY(-1px)";
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.background = "#25D366";
-          e.target.style.transform = "translateY(0)";
         }}
       >
         <MessageCircle size={20} /> Share via WhatsApp
