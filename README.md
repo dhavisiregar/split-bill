@@ -35,7 +35,6 @@ A smart bill-splitting web app. Upload a receipt photo and AI automatically extr
 ```
 src/
 ├── api/
-│   ├── billApi.js          # Backend HTTP calls (optional)
 │   └── receiptAI.js        # Groq vision API — receipt extraction
 ├── components/
 │   ├── ui/
